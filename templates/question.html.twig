@@ -1,0 +1,27 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+
+
+    <div class="jumbotron text-center">
+
+        <h1 class="display-3">SomeWord</h1>
+
+        <form action="{{ path('info-submit') }}" method="post" style="margin-top: 3em;">
+
+            <div class="form-group row">
+                <label name="first-language" class="col-sm-3 col-form-label col-form-label-lg">The anwser</label>
+                <div class="col-sm-9">
+                    <input name="first-language" class="form-control form-control-lg" type="text" placeholder="Type the word as you remember it..."/>
+                </div>
+            </div>
+
+            <p style="margin-top: 3em;">
+                <button type="submit" class="btn btn-xlg btn-success">Confirm</button>
+            </p>
+
+        </form>
+
+    </div>
+
+{% endblock %}

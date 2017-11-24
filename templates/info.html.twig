@@ -1,0 +1,62 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+
+
+    <div class="jumbotron text-center">
+
+        <h1 class="display-3">Quick questions</h1>
+        <p class="lead">We will need some simple information about yourself.</p>
+
+        <form action="{{ path('info-submit') }}" method="post">
+
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label col-form-label-lg">Your email</label>
+                <div class="col-sm-9">
+                    <input name="email" type="email" class="form-control form-control-lg" id="colFormLabelLg" placeholder="Type your email here...">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label col-form-label-lg">The year of your
+                    birth</label>
+                <div class="col-sm-9">
+                    <input name="birth" class="form-control form-control-lg" type="number" min="1900" max="2099" step="1" value="1990"/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label name="first-language" class="col-sm-3 col-form-label col-form-label-lg">Your first
+                    language</label>
+                <div class="col-sm-9">
+                    <input name="first-language" class="form-control form-control-lg" type="text" placeholder="Type your first language here..."/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label name="second-language" class="col-sm-3 col-form-label col-form-label-lg">Your second
+                    language</label>
+                <div class="col-sm-9">
+                    <input name="secound-language" class="form-control form-control-lg" type="text" placeholder="Type other language or languages you know here..."/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label col-form-label-lg">Your gender</label>
+                <div class="col-sm-9">
+                    <select name="gender" class="form-control form-control-lg">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <p style="margin-top: 3em;">
+                <button type="submit" class="btn btn-xlg btn-success">Confirm</button>
+            </p>
+
+        </form>
+
+    </div>
+
+{% endblock %}
