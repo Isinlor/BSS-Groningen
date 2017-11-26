@@ -2,8 +2,32 @@
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use function Stringy\create as s;
 
-//Request::setTrustedProxies(array('127.0.0.1'));
+function generateWord($length)
+{
+
+    $words = preg_split('/\\n/', file_get_contents(__DIR__ . '/../fi_50k.txt'));
+
+    do {
+
+        $randomWord = s($words[random_int(0, count($words) - 1)])->toAscii()->split(' ')[0];
+
+    } while ($randomWord->length() != $length);
+    
+    return $randomWord;
+
+}
+
+function random_str($length, $keyspace = 'abcdefghijklmnopqrstuvwxyz')
+{
+    $str = '';
+    $max = mb_strlen($keyspace, '8bit') - 1;
+    for ($i = 0; $i < $length; ++$i) {
+        $str .= $keyspace[random_int(0, $max)];
+    }
+    return $str;
+}
 
 $app->get('/', function () use ($app) {
     return $app['twig']->render('index.html.twig', array());
@@ -21,9 +45,35 @@ $app->post('/info-submit', function (Request $request) use ($app) {
 
 })->bind('info-submit');
 
-$app->get('/question', function () use ($app) {
 
-    return $app['twig']->render('question.html.twig', array());
+$app->match('/question', function (Request $request) use ($app) {
+
+    $session = $request->getSession();
+
+    if (!empty($request->request->all()['word'])) {
+
+        $session->set(
+            'count', $session->get('count', 0) + 1
+        );
+
+        if ($request->request->all()['recall'] === $request->request->all()['word']) {
+
+            $session->set(
+                'recall', $session->get('recall', 0) + 1
+            );
+
+        }
+
+    }
+
+    $length = $request->get('length', 10);
+    $random = $request->get('random', false);
+
+    return $app['twig']->render('question.html.twig', [
+        'word' => $random ? random_str($length) : generateWord($length),
+        'count' => $session->get('count', 0),
+        'recall' => $session->get('recall', 0)
+    ]);
 
 })->bind('question');
 

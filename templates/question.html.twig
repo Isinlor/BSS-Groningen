@@ -2,23 +2,39 @@
 
 {% block content %}
 
+    <script>
+        $(function () {
+
+            $('#word').delay(3000).fadeOut(500, function () {
+
+                $('#recall').fadeIn(500);
+                $('#wordrecall').focus();
+
+            });
+
+        });
+    </script>
 
     <div class="jumbotron text-center">
 
-        <h1 class="display-3">SomeWord</h1>
+        <h1 class="display-3" id="word">{{ word }}</h1>
 
-        <form action="{{ path('info-submit') }}" method="post" style="margin-top: 3em;">
+        <form id="recall" action="{{ path('question') }}" method="post" style="margin-top: 3em; display: none;">
 
             <div class="form-group row">
                 <label name="first-language" class="col-sm-3 col-form-label col-form-label-lg">The anwser</label>
                 <div class="col-sm-9">
-                    <input name="first-language" class="form-control form-control-lg" type="text" placeholder="Type the word as you remember it..."/>
+                    <input id="wordrecall" name="recall" class="form-control form-control-lg" type="text" placeholder="Type the word as you remember it..."/>
                 </div>
             </div>
+
+            <input name="word" type="hidden" value="{{ word }}"/>
 
             <p style="margin-top: 3em;">
                 <button type="submit" class="btn btn-xlg btn-success">Confirm</button>
             </p>
+
+            <p class="small text-center"> {{ count }} / {{ recall }}</p>
 
         </form>
 
