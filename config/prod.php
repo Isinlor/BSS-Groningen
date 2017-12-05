@@ -9,3 +9,14 @@ $app['twig.options'] = array(
     'cache' => false,
 
 );
+
+$app->register(new Silex\Provider\DoctrineServiceProvider(), array(
+    'db.options' => array(
+        'driver' => 'pdo_mysql',
+        'host' => '127.0.0.1',
+        'dbname' => 'bss',
+        'user' => 'root',
+        'password' => '',
+        'charset' => 'utf8',
+    ),
+));

@@ -4,44 +4,118 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use function Stringy\create as s;
 
-function generateWord($length)
+function generateWord(array $seenWords)
 {
 
-    $words = preg_split('/\\n/', file_get_contents(__DIR__ . '/../fi_50k.txt'));
+    $words = [
+        'kuitenkaan',
+        'muistuttaa',
+        'osallistua',
+        'työntekijä',
+        'kirjoittaa',
+        'keskustelu',
+        'neuvottelu',
+        'tarkoittaa',
+        'puolestaan',
+        'tavallinen',
+        'merkittävä',
+        'huolimatta',
+        'vaihtoehto',
+        'valmentaja',
+        'opiskelija',
+        'vaihteeksi',
+        'terminaali',
+        'ihastuttaa',
+        'tilastoida',
+        'työllistyä',
+        'myyntitulo',
+        'kulloinkin',
+        'parannella',
+        'pysäköinti',
+        'kaksisataa',
+        'paperikone',
+        'silmäkulma',
+        'tyhjillään',
+        'ryhtyminen',
+        'viikottain'
+    ];
+
+    $words = array_map(
+        function ($word) {
+            return s($word)->toAscii();
+        },
+        $words
+    );
 
     do {
 
-        $randomWord = s($words[random_int(0, count($words) - 1)])->toAscii()->split(' ')[0];
+        $randomWord = $words[random_int(0, count($words) - 1)];
 
-    } while ($randomWord->length() != $length);
-    
+    } while (in_array($randomWord, $seenWords));
+
     return $randomWord;
 
 }
 
-function random_str($length, $keyspace = 'abcdefghijklmnopqrstuvwxyz')
-{
-    $str = '';
-    $max = mb_strlen($keyspace, '8bit') - 1;
-    for ($i = 0; $i < $length; ++$i) {
-        $str .= $keyspace[random_int(0, $max)];
+$app->before(function (Request $request) use ($app) {
+
+    if ($request->get('redirect', false)) {
+        return;
     }
-    return $str;
-}
+
+    $session = $request->getSession();
+
+    $user = $session->get('user', false);
+    $tutorial = $session->get('tutorial', false);
+    $finished = $session->get('finished', false);
+
+    if ($finished) {
+        return $app->redirect($app['url_generator']->generate('end', ['redirect' => true]));
+    }
+
+    if ($request->getPathInfo() !== '/tutorial' && $user && !$tutorial) {
+        return $app->redirect($app['url_generator']->generate('tutorial', ['redirect' => true]));
+    }
+
+    if ($request->getPathInfo() !== '/question' && $user && $tutorial && !$finished) {
+        return $app->redirect($app['url_generator']->generate('question', ['redirect' => true]));
+    }
+
+});
 
 $app->get('/', function () use ($app) {
+
     return $app['twig']->render('index.html.twig', array());
+
 })->bind('homepage');
 
 $app->get('/info', function () use ($app) {
+
     return $app['twig']->render('info.html.twig', array());
+
 })->bind('info');
 
 $app->post('/info-submit', function (Request $request) use ($app) {
 
-    var_dump($request->request->all());
+    $data = $request->request->all();
 
-    return $app->redirect('/question');
+    /** @var \Doctrine\DBAL\Connection $conn */
+    $conn = $app['db'];
+
+    $conn->insert('users', [
+        'email' => $data['email'],
+        'birth' => $data['birth'],
+        'first_language' => $data['first-language'],
+        'other_languages' => $data['secound-language'],
+        'gender' => $data['gender'],
+        'finnish' => $data['finnish']
+    ]);
+
+    $session = $request->getSession();
+
+    $session->set('user', $conn->lastInsertId());
+
+    return $app->redirect($app['url_generator']->generate('question'));
 
 })->bind('info-submit');
 
@@ -50,32 +124,95 @@ $app->match('/question', function (Request $request) use ($app) {
 
     $session = $request->getSession();
 
-    if (!empty($request->request->all()['word'])) {
+    $order = $session->get('order', 1);
 
-        $session->set(
-            'count', $session->get('count', 0) + 1
-        );
+    if ($request->isMethod('post')) {
 
-        if ($request->request->all()['recall'] === $request->request->all()['word']) {
+        /** @var \Doctrine\DBAL\Connection $conn */
+        $conn = $app['db'];
 
-            $session->set(
-                'recall', $session->get('recall', 0) + 1
-            );
+        $data = $request->request->all();
 
+        $conn->insert('words', [
+            'user' => (int)$session->get('user'),
+            'given_word' => $session->get('word'),
+            'recalled_word' => $data['recall'],
+            'generation' => $session->get('generation'),
+            'response' => time(),
+            '`order`' => $order
+        ]);
+
+        if ($order >= 30) {
+
+            $session->set('finished', true);
+
+            return $app->redirect('/end');
         }
+
+        $session->set('order', $order + 1);
+        $session->remove('word');
+        $session->remove('seen');
 
     }
 
-    $length = $request->get('length', 10);
-    $random = $request->get('random', false);
+    if (!$session->has('word')) {
+
+        $session->set('word', $word = generateWord(
+            $seenWords = $session->get('seenWords', [])
+        ));
+
+        $seenWords[] = $word;
+
+        $session->set('seenWords', $seenWords);
+
+        $session->set('generation', time());
+
+    }
+
+
+    $session->set('seen', $session->get('seen', 0) + 1);
 
     return $app['twig']->render('question.html.twig', [
-        'word' => $random ? random_str($length) : generateWord($length),
-        'count' => $session->get('count', 0),
-        'recall' => $session->get('recall', 0)
+        'show' => $session->get('seen') === 1,
+        'word' => $session->get('word'),
+        'toGo' => 30 - $order
     ]);
 
 })->bind('question');
+
+$app->match('/end', function (Request $request) use ($app) {
+
+    /** @var \Doctrine\DBAL\Connection $conn */
+    $conn = $app['db'];
+
+    $session = $request->getSession();
+
+    $score = $conn->fetchColumn(
+        'SELECT COUNT(*) FROM `words` WHERE `user` = ? AND `recalled_word` = `given_word`', [
+        $session->get('user')
+    ]);
+
+    return $app['twig']->render('end.html.twig', [
+        'score' => $score
+    ]);
+
+})->bind('end');
+
+$app->match('/tutorial', function (Request $request) use ($app) {
+
+    if ($request->isMethod('post')) {
+
+        $session = $request->getSession();
+
+        $session->set('tutorial', true);
+
+        return $app->redirect($app['url_generator']->generate('question'));
+
+    }
+
+    return $app['twig']->render('tutorial.html.twig');
+
+})->bind('tutorial');
 
 $app->error(function (\Exception $e, Request $request, $code) use ($app) {
     if ($app['debug']) {

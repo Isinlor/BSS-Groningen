@@ -1,0 +1,42 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+
+    <div class="jumbotron text-center">
+
+        <p style="font-size: 25px">
+
+            In this test you will need to remember words from foreign language.
+
+        <p>
+
+        <h1>How will the test look like?</h1>
+
+        <p style="font-size: 25px">
+
+            First, you will be shown a word like on the picture below. <br> The word will disappear after 3 seconds.
+
+            <img src="/images/word.png" style="width:100%; padding:2em;">
+
+            Your task will be to try to remember that word. <br>
+            After the word disappears you will be asked to recall that word.
+
+            <img src="/images/answer.png" style="width:100%; padding:2em;">
+
+            You do not need to recall the word perfectly. <br> Just try to do the best you can. <br>
+            There is no time limit on how long you can take to recall the word. <br>
+            In total the whole test consists of 30 words, so you should be done in about 5 minutes.
+
+        </p>
+
+        <form action="{{ path('tutorial') }}" method="post">
+
+            <p style="margin-top: 3em;">
+                <button type="submit" class="btn btn-xlg btn-success">Ok, show me the first word</button>
+            </p>
+
+        </form>
+
+    </div>
+
+{% endblock %}

@@ -6,50 +6,69 @@
     <div class="jumbotron text-center">
 
         <h1 class="display-3">Quick questions</h1>
-        <p class="lead">We will need some simple information about yourself.</p>
+        <p class="lead">We will need some simple information about yourself. </p>
 
         <form action="{{ path('info-submit') }}" method="post">
 
-            <div class="form-group row">
-                <label class="col-sm-3 col-form-label col-form-label-lg">Your email</label>
-                <div class="col-sm-9">
-                    <input name="email" type="email" class="form-control form-control-lg" id="colFormLabelLg" placeholder="Type your email here...">
-                </div>
-            </div>
 
             <div class="form-group row">
                 <label class="col-sm-3 col-form-label col-form-label-lg">The year of your
                     birth</label>
                 <div class="col-sm-9">
-                    <input name="birth" class="form-control form-control-lg" type="number" min="1900" max="2099" step="1" value="1990"/>
+                    <input name="birth" class="form-control form-control-lg" type="number" min="1900" max="2099" step="1" value="1990" required/>
                 </div>
             </div>
 
             <div class="form-group row">
-                <label name="first-language" class="col-sm-3 col-form-label col-form-label-lg">Your first
+                <label name="first-language" class="col-sm-3 col-form-label col-form-label-lg">Your native
                     language</label>
                 <div class="col-sm-9">
-                    <input name="first-language" class="form-control form-control-lg" type="text" placeholder="Type your first language here..."/>
+                    <input name="first-language" class="form-control form-control-lg" type="text" placeholder="Type the name of language that you know the best here..." required/>
                 </div>
             </div>
 
             <div class="form-group row">
-                <label name="second-language" class="col-sm-3 col-form-label col-form-label-lg">Your second
-                    language</label>
+                <label name="second-language" class="col-sm-3 col-form-label col-form-label-lg">Other languages that you
+                    know (if any)</label>
                 <div class="col-sm-9">
                     <input name="secound-language" class="form-control form-control-lg" type="text" placeholder="Type other language or languages you know here..."/>
                 </div>
             </div>
 
             <div class="form-group row">
+                <label class="col-sm-3 col-form-label col-form-label-lg">Do you know
+                    Finnish language?</label>
+                <div class="col-sm-9">
+                    <select name="finnish" class="form-control form-control-lg" required>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
                 <label class="col-sm-3 col-form-label col-form-label-lg">Your gender</label>
                 <div class="col-sm-9">
-                    <select name="gender" class="form-control form-control-lg">
+                    <select name="gender" class="form-control form-control-lg" required>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
                     </select>
                 </div>
             </div>
+
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label col-form-label-lg">Your email (not required)</label>
+                <div class="col-sm-9">
+                    <input name="email" type="email" class="form-control form-control-lg" id="colFormLabelLg" placeholder="Type your email here...">
+                </div>
+            </div>
+
+            <p style="font-size: 25px">
+                By clicking the button "confirm" you are agreeing to participate in the research. Before the experiment
+                begins you will be shown a very brief tutorial. Your participation is
+                entirely voluntary. You have option to withfraw from this study at any time without penalty. Also, you
+                have the right to request to exclude your responses from the study.
+            </p>
 
             <p style="margin-top: 3em;">
                 <button type="submit" class="btn btn-xlg btn-success">Confirm</button>

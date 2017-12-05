@@ -2,39 +2,51 @@
 
 {% block content %}
 
-    <script>
-        $(function () {
+    {% if show %}
 
-            $('#word').delay(3000).fadeOut(500, function () {
+        <script>
+            $(function () {
 
-                $('#recall').fadeIn(500);
-                $('#wordrecall').focus();
+                $('#word').delay(3000).fadeOut(500, function () {
+
+                    $('#recall').fadeIn(500);
+                    $('#wordrecall').focus();
+
+                });
 
             });
+        </script>
 
-        });
-    </script>
+    {% endif %}
+
+    <style>
+        .mt3em {
+            margin-top: 3em;
+        }
+    </style>
 
     <div class="jumbotron text-center">
 
-        <h1 class="display-3" id="word">{{ word }}</h1>
+        {% if show %}
 
-        <form id="recall" action="{{ path('question') }}" method="post" style="margin-top: 3em; display: none;">
+            <h1 class="display-3" id="word">{{ word }}</h1>
+
+        {% endif %}
+
+        <form id="recall" method="post" class="mt3em" {% if show %} style="display: none;" {% endif %}>
 
             <div class="form-group row">
-                <label name="first-language" class="col-sm-3 col-form-label col-form-label-lg">The anwser</label>
+                <label name="first-language" class="col-sm-3 col-form-label col-form-label-lg">The answer</label>
                 <div class="col-sm-9">
                     <input id="wordrecall" name="recall" class="form-control form-control-lg" type="text" placeholder="Type the word as you remember it..."/>
                 </div>
             </div>
 
-            <input name="word" type="hidden" value="{{ word }}"/>
-
             <p style="margin-top: 3em;">
                 <button type="submit" class="btn btn-xlg btn-success">Confirm</button>
             </p>
 
-            <p class="small text-center"> {{ count }} / {{ recall }}</p>
+            <small>You have {{ toGo }} words remaining.</small>
 
         </form>
 
